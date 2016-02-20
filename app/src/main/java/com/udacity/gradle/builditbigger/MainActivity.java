@@ -1,6 +1,9 @@
 package com.udacity.gradle.builditbigger;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +22,9 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        EndpointsAsyncTask sampleTask = new EndpointsAsyncTask();
+        sampleTask.execute(new Pair<Context, String>(this, "GPS"));
     }
 
 
@@ -44,18 +50,23 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void tellJoke(View view){
-//        MyJoke joke = new MyJoke();
-//        launchLibraryActivity(view, joke.getJoke());
-//        Toast.makeText(this, joke.getJoke(), Toast.LENGTH_SHORT).show();
+    public void launchLibraryActivity(View view){
+        new GetJoke().execute("");
     }
 
-    public void launchLibraryActivity(View view){
-        Log.d("main", "in main activity");
-        MyJoke joke = new MyJoke();
-        String jokeContent = joke.getJoke();
-        Intent myIntent = new Intent(this, JokeActivity.class);
-        myIntent.putExtra("joke", jokeContent);
-        startActivity(myIntent);
+    private class GetJoke extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params){
+            MyJoke joke = new MyJoke();
+            String jokeContent = joke.getJoke();
+            return jokeContent;
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            Intent myIntent = new Intent(getBaseContext(), JokeActivity.class);
+            myIntent.putExtra("joke", result);
+            startActivity(myIntent);
+        }
     }
 }
