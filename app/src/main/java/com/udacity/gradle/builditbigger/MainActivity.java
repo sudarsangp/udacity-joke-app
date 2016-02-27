@@ -54,7 +54,10 @@ public class MainActivity extends ActionBarActivity {
         new GetJoke().execute("");
     }
 
-    private class GetJoke extends AsyncTask<String, Void, String> {
+    public class GetJoke extends AsyncTask<String, Void, String> {
+        private JsonGetTaskListener mListener = null;
+        private Exception mError = null;
+
         @Override
         protected String doInBackground(String... params){
             MyJoke joke = new MyJoke();
@@ -64,9 +67,21 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(String result){
+            if (this.mListener != null)
+                this.mListener.onComplete(result, mError);
             Intent myIntent = new Intent(getBaseContext(), JokeActivity.class);
             myIntent.putExtra("joke", result);
             startActivity(myIntent);
         }
+
+        public GetJoke setListener(JsonGetTaskListener listener) {
+            this.mListener = listener;
+            return this;
+        }
+
+
+    }
+    public interface JsonGetTaskListener {
+        void onComplete(String jsonString, Exception e);
     }
 }
